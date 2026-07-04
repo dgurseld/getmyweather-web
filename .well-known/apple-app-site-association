@@ -1,1 +1,10 @@
-
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["3AHFLBVZQS.com.inferno.getmyweather"],
+        "paths": ["/invite/*"]
+      }
+    ]
+  }
+}
