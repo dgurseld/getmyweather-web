@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GetMyWeather</title>
-  <meta property="og:title" content="GetMyWeather — Arkadaşlarının havasını ve saatini bir bakışta gör" />
-  <meta property="og:description" content="Onlarla iletişimde kal. Konumun asla sunucuya gitmez." />
+  <meta property="og:title" content="GetMyWeather — Sevdiklerine bir adım daha yakın hisset" />
+  <meta property="og:description" content="Bulundukları yerin havasını ve saatini bir bakışta gör. Konumun cihazından hiç çıkmaz." />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -81,9 +81,15 @@
     .icon-wrap { width: 96px; height: 96px; margin-bottom: 18px; filter: drop-shadow(0 0 26px rgba(255,180,107,0.55)); animation: pulse 3.5s ease-in-out infinite; }
     @keyframes pulse { 0%, 100% { filter: drop-shadow(0 0 26px rgba(255,180,107,0.55)); } 50% { filter: drop-shadow(0 0 40px rgba(255,180,107,0.85)); } }
 
-    .app-name { color: var(--gold-bright); font-size: 28px; font-weight: 800; letter-spacing: 1.5px; margin-bottom: 12px; text-align: center; }
-    .tagline { color: var(--ink); font-size: 16px; margin-bottom: 10px; text-align: center; max-width: 340px; line-height: 1.6; font-weight: 600; }
-    .desc { color: var(--muted); font-size: 13.5px; text-align: center; max-width: 320px; line-height: 1.8; margin-bottom: 32px; }
+    .app-name { color: var(--gold-bright); font-size: 28px; font-weight: 800; letter-spacing: 1.5px; margin-bottom: 14px; text-align: center; }
+    .tagline { color: var(--ink); font-size: 18px; margin-bottom: 12px; text-align: center; max-width: 340px; line-height: 1.6; font-weight: 700; }
+    .desc { color: var(--muted); font-size: 14px; text-align: center; max-width: 320px; line-height: 1.8; margin-bottom: 18px; }
+    .privacy-note {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: var(--dim); font-size: 11.5px; font-weight: 600;
+      background: var(--glass); border: 1px solid var(--line);
+      padding: 6px 14px; border-radius: 20px; margin-bottom: 28px;
+    }
 
     .card {
       background: var(--glass); backdrop-filter: blur(20px) saturate(140%);
@@ -134,6 +140,7 @@
     <div class="app-name">GetMyWeather</div>
     <div class="tagline" id="tagline"></div>
     <div class="desc" id="desc"></div>
+    <div class="privacy-note" id="privacyNote"></div>
 
     <div class="card">
       <div class="badge" id="badge"></div>
@@ -148,16 +155,18 @@
   <script>
     const strings = {
       tr: {
-        tagline: 'Arkadaşlarının bulunduğu yerin havasını ve saatini, bir bakışta gör.',
-        desc: 'Onlarla iletişimde kal — konumun hiçbir zaman sunucularımıza gönderilmez, hava durumun cihazında hesaplanır.',
+        tagline: 'Uzakta da olsalar, sevdiklerine bir adım daha yakın hisset.',
+        desc: 'Bulundukları yerin havasını ve saatini bir bakışta gör, kendi anını da onlarla paylaş.',
+        privacyNote: '🔒 Konumun cihazından hiç çıkmaz',
         badge: 'DURUM',
         soon: 'Yakında App Store\'da',
         privacy: 'Gizlilik Politikası',
         terms: 'Kullanım Koşulları',
       },
       en: {
-        tagline: 'See the weather and time where your friends are, at a glance.',
-        desc: 'Stay in touch with them — your location never touches our servers, your weather is calculated on your device.',
+        tagline: 'Feel a little closer to the people you love, wherever they are.',
+        desc: 'See the weather and time where they are, at a glance, and share your own moment with them.',
+        privacyNote: '🔒 Your location never leaves your device',
         badge: 'STATUS',
         soon: 'Coming soon on the App Store',
         privacy: 'Privacy Policy',
@@ -169,6 +178,7 @@
       const s = strings[lang];
       document.getElementById('tagline').textContent = s.tagline;
       document.getElementById('desc').textContent = s.desc;
+      document.getElementById('privacyNote').textContent = s.privacyNote;
       document.getElementById('badge').textContent = s.badge;
       document.getElementById('soon').textContent = s.soon;
       document.getElementById('privacyLink').textContent = s.privacy;
