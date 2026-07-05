@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GetMyWeather</title>
+  <meta property="og:title" content="GetMyWeather — Arkadaşlarının havasını ve saatini bir bakışta gör" />
+  <meta property="og:description" content="Onlarla iletişimde kal. Konumun asla sunucuya gitmez." />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --gold: #ffb46b;
+      --gold-bright: #ffd9a8;
+      --ink: #ffffff;
+      --muted: #dfe3ff;
+      --dim: #aab0dd;
+      --line: rgba(255,255,255,0.18);
+      --glass: rgba(8,10,30,0.38);
+    }
+
+    html, body { height: 100%; }
+
+    body {
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 40px 24px;
+      position: relative;
+      overflow-x: hidden;
+      background: linear-gradient(125deg, #131a3d, #2c3a75, #6a4a8f, #d97a55, #2c3a75);
+      background-size: 400% 400%;
+      animation: sky 22s ease-in-out infinite;
+    }
+
+    @keyframes sky {
+      0%   { background-position: 0% 30%; }
+      50%  { background-position: 100% 70%; }
+      100% { background-position: 0% 30%; }
+    }
+
+    .vignette {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background: radial-gradient(ellipse at 50% 38%, rgba(6,8,28,0.08), rgba(6,8,28,0.62) 75%);
+    }
+
+    .bg-decor { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .bg-decor .orb {
+      position: absolute; border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.9), rgba(255,255,255,0));
+      filter: blur(1px);
+      animation: float 16s ease-in-out infinite;
+    }
+    .bg-decor .cloud {
+      position: absolute; filter: blur(0.5px) drop-shadow(0 0 10px rgba(255,255,255,0.15));
+      animation: drift 40s linear infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); opacity: .55; }
+      50% { transform: translateY(-22px); opacity: 1; }
+    }
+    @keyframes drift {
+      0% { transform: translateX(-6vw); }
+      50% { transform: translateX(6vw); }
+      100% { transform: translateX(-6vw); }
+    }
+
+    .lang-switch { position: fixed; top: 20px; right: 20px; display: flex; gap: 8px; z-index: 2; }
+    .lang-btn {
+      background: var(--glass); backdrop-filter: blur(8px);
+      border: 1px solid var(--line); color: var(--muted);
+      padding: 6px 14px; border-radius: 20px; cursor: pointer;
+      font-size: 12px; font-weight: 600; transition: all .2s;
+    }
+    .lang-btn.active { border-color: var(--gold); color: var(--gold-bright); }
+
+    .content { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; }
+
+    .icon-wrap { width: 96px; height: 96px; margin-bottom: 18px; filter: drop-shadow(0 0 26px rgba(255,180,107,0.55)); animation: pulse 3.5s ease-in-out infinite; }
+    @keyframes pulse { 0%, 100% { filter: drop-shadow(0 0 26px rgba(255,180,107,0.55)); } 50% { filter: drop-shadow(0 0 40px rgba(255,180,107,0.85)); } }
+
+    .app-name { color: var(--gold-bright); font-size: 28px; font-weight: 800; letter-spacing: 1.5px; margin-bottom: 12px; text-align: center; }
+    .tagline { color: var(--ink); font-size: 16px; margin-bottom: 10px; text-align: center; max-width: 340px; line-height: 1.6; font-weight: 600; }
+    .desc { color: var(--muted); font-size: 13.5px; text-align: center; max-width: 320px; line-height: 1.8; margin-bottom: 32px; }
+
+    .card {
+      background: var(--glass); backdrop-filter: blur(20px) saturate(140%);
+      border: 1px solid var(--line); border-radius: 24px;
+      padding: 22px 28px; width: 100%; max-width: 340px;
+      text-align: center; margin-bottom: 22px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.25);
+    }
+    .card .badge { color: var(--dim); font-size: 10px; font-weight: 700; letter-spacing: 1.5px; margin-bottom: 6px; }
+    .card .soon { color: var(--gold-bright); font-size: 15px; font-weight: 800; }
+
+    .footer { color: var(--dim); font-size: 11px; margin-top: 12px; text-align: center; position: relative; z-index: 1; }
+    .footer a { color: var(--muted); text-decoration: none; }
+    .footer a:hover { color: var(--gold-bright); }
+  </style>
+</head>
+<body>
+  <div class="vignette" aria-hidden="true"></div>
+  <div class="bg-decor" aria-hidden="true">
+    <span class="orb" style="top:10%;left:12%;width:5px;height:5px;animation-delay:0s"></span>
+    <span class="orb" style="top:22%;right:18%;width:4px;height:4px;animation-delay:1.2s"></span>
+    <span class="orb" style="top:34%;left:26%;width:3px;height:3px;animation-delay:2.4s"></span>
+    <span class="orb" style="top:60%;right:12%;width:4px;height:4px;animation-delay:.6s"></span>
+    <span class="orb" style="top:72%;left:16%;width:3px;height:3px;animation-delay:1.8s"></span>
+    <span class="orb" style="top:85%;right:28%;width:5px;height:5px;animation-delay:2.8s"></span>
+    <svg class="cloud" style="top:16%;left:8%;width:70px;opacity:.16;animation-delay:0s" viewBox="0 0 70 40" fill="white"><path d="M14 34c-7 0-12-5-12-12S7 10 14 10c2-6 8-9 14-8 7 1 12 6 13 12 6 0 11 5 11 10s-5 10-11 10H14z"/></svg>
+    <svg class="cloud" style="top:70%;right:6%;width:56px;opacity:.14;animation-delay:6s" viewBox="0 0 70 40" fill="white"><path d="M14 34c-7 0-12-5-12-12S7 10 14 10c2-6 8-9 14-8 7 1 12 6 13 12 6 0 11 5 11 10s-5 10-11 10H14z"/></svg>
+  </div>
+
+  <div class="lang-switch">
+    <button class="lang-btn" id="btn-tr" onclick="setLang('tr')">TR</button>
+    <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+  </div>
+
+  <div class="content">
+    <div class="icon-wrap">
+      <svg viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="40" cy="34" r="18" fill="#ffb46b"/>
+        <g stroke="#ffd9a8" stroke-width="3" stroke-linecap="round">
+          <line x1="40" y1="4" x2="40" y2="10"/>
+          <line x1="66" y1="16" x2="62" y2="20"/>
+          <line x1="14" y1="16" x2="18" y2="20"/>
+        </g>
+        <path d="M20 58c0-9 7-16 16-16 6.5 0 12 3.6 14.8 9A13 13 0 0 1 74 64a13 13 0 0 1-13 13H27a13 13 0 0 1-7-24z" fill="#eef1ff"/>
+      </svg>
+    </div>
+
+    <div class="app-name">GetMyWeather</div>
+    <div class="tagline" id="tagline"></div>
+    <div class="desc" id="desc"></div>
+
+    <div class="card">
+      <div class="badge" id="badge"></div>
+      <div class="soon" id="soon"></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <a href="https://getmyweather.app/privacy" id="privacyLink"></a> &middot; <a href="https://getmyweather.app/terms" id="termsLink"></a> &middot; getmyweather.app &middot; 2026
+  </div>
+
+  <script>
+    const strings = {
+      tr: {
+        tagline: 'Arkadaşlarının bulunduğu yerin havasını ve saatini, bir bakışta gör.',
+        desc: 'Onlarla iletişimde kal — konumun hiçbir zaman sunucularımıza gönderilmez, hava durumun cihazında hesaplanır.',
+        badge: 'DURUM',
+        soon: 'Yakında App Store\'da',
+        privacy: 'Gizlilik Politikası',
+        terms: 'Kullanım Koşulları',
+      },
+      en: {
+        tagline: 'See the weather and time where your friends are, at a glance.',
+        desc: 'Stay in touch with them — your location never touches our servers, your weather is calculated on your device.',
+        badge: 'STATUS',
+        soon: 'Coming soon on the App Store',
+        privacy: 'Privacy Policy',
+        terms: 'Terms of Use',
+      }
+    };
+
+    function setLang(lang) {
+      const s = strings[lang];
+      document.getElementById('tagline').textContent = s.tagline;
+      document.getElementById('desc').textContent = s.desc;
+      document.getElementById('badge').textContent = s.badge;
+      document.getElementById('soon').textContent = s.soon;
+      document.getElementById('privacyLink').textContent = s.privacy;
+      document.getElementById('termsLink').textContent = s.terms;
+      document.getElementById('btn-tr').className = 'lang-btn' + (lang === 'tr' ? ' active' : '');
+      document.getElementById('btn-en').className = 'lang-btn' + (lang === 'en' ? ' active' : '');
+      document.documentElement.lang = lang;
+      localStorage.setItem('gmw_lang', lang);
+    }
+
+    const savedLang = localStorage.getItem('gmw_lang');
+    const browserLang = navigator.language ? navigator.language.substring(0, 2) : 'en';
+    setLang(savedLang || (browserLang === 'tr' ? 'tr' : 'en'));
+  </script>
+</body>
+</html>

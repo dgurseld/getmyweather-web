@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GetMyWeather — Privacy Policy</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --gold: #ffb46b;
+      --gold-bright: #ffd9a8;
+      --ink: #ffffff;
+      --muted: #c3c8f5;
+      --dim: #8890c8;
+      --line: rgba(255,255,255,0.16);
+      --glass: rgba(255,255,255,0.05);
+    }
+
+    body {
+      background: radial-gradient(ellipse at 30% 0%, #33366e, #171a3e 55%, #0e1030 100%);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      padding: 48px 24px 64px; max-width: 680px; margin: 0 auto; line-height: 1.8;
+    }
+
+    .icon { width: 40px; height: 40px; margin-bottom: 14px; filter: drop-shadow(0 0 14px rgba(255,180,107,0.5)); }
+    h1 { color: var(--gold-bright); font-size: 26px; font-weight: 800; letter-spacing: 1px; margin-bottom: 8px; }
+    .date { color: var(--dim); font-size: 13px; margin-bottom: 40px; }
+    h2 { color: var(--gold-bright); font-size: 15px; font-weight: 700; letter-spacing: 0.5px; margin: 32px 0 10px; }
+    p { color: var(--muted); font-size: 15px; margin-bottom: 12px; }
+    .highlight {
+      background: var(--glass); backdrop-filter: blur(14px);
+      border: 1px solid var(--line); border-left: 3px solid var(--gold);
+      border-radius: 14px; padding: 20px 24px; margin: 24px 0;
+      color: var(--gold-bright); font-size: 15px; line-height: 1.7;
+    }
+    footer { margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--line); color: var(--dim); font-size: 13px; }
+    a { color: var(--gold-bright); text-decoration: none; }
+    .lang-switch { display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 28px; }
+    .lang-btn {
+      background: var(--glass); border: 1px solid var(--line); color: var(--dim);
+      cursor: pointer; font-size: 12px; font-weight: 600; padding: 6px 14px; border-radius: 20px;
+    }
+    .lang-btn.active { border-color: var(--gold); color: var(--gold-bright); }
+  </style>
+</head>
+<body>
+  <div class="lang-switch">
+    <button class="lang-btn" id="btn-tr" onclick="setLang('tr')">TR</button>
+    <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+  </div>
+
+  <svg class="icon" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="40" cy="34" r="18" fill="#ffb46b"/>
+    <path d="M20 58c0-9 7-16 16-16 6.5 0 12 3.6 14.8 9A13 13 0 0 1 74 64a13 13 0 0 1-13 13H27a13 13 0 0 1-7-24z" fill="#ffffff"/>
+  </svg>
+
+  <h1 id="title"></h1>
+  <div class="date" id="date"></div>
+
+  <div class="highlight" id="highlight"></div>
+
+  <div id="content"></div>
+
+  <footer>
+    <p id="footerText"></p>
+  </footer>
+
+  <script>
+    const content = {
+      tr: {
+        title: 'Gizlilik Politikası',
+        date: 'Son güncelleme: Temmuz 2026',
+        highlight: 'Konumun asla sunucularımıza gönderilmez. Hava durumun cihazında hesaplanır, sadece sonucu paylaşılır.',
+        sections: [
+          ['Genel İlke', 'GetMyWeather, arkadaşlarının bulunduğu yerin havasını görmeni sağlayan basit bir uygulamadır. İhtiyacımız olmayan hiçbir veriyi toplamıyoruz.'],
+          ['Konum Verisi', 'Uygulama, hava durumunu hesaplamak için cihazının konumunu Apple WeatherKit üzerinden yalnızca cihazda kullanır. Konumun hiçbir zaman bizim sunucularımıza gönderilmez. Sunucuya yazılan tek şey, hesaplanmış sonuçtur: sıcaklık, hava koşulu ve saat dilimi.'],
+          ['Hesap ve Giriş', 'Giriş için Apple ile Giriş Yap kullanılır. E-posta adresini istemiyoruz ve Apple\'dan e-posta talep etmiyoruz.'],
+          ['Sunucuda Saklanan Veriler', 'Kullanıcı adın, en son hava durumu bilgin (sıcaklık, koşul, saat dilimi), arkadaşlık ilişkilerin ve davet linklerin Supabase üzerinde saklanır. Bu veriler yalnızca sen ve kabul ettiğin arkadaşların tarafından görülebilir (Row Level Security ile korunur).'],
+          ['Arkadaş Davetleri', 'Oluşturduğun davet linki, kabul edilene kadar geçerlidir ve 7 gün sonra otomatik olarak sona erer. Link, yalnızca arkadaşlık kurmak için kullanılır, başka bir amaçla işlenmez.'],
+          ['Paylaşım Kartı', 'Oluşturduğun paylaşım kartına eklediğin fotoğraf (varsa) yalnızca senin seçimin ve kontrolünle paylaşılır, bizim sunucularımızda tutulmaz.'],
+          ['Çocukların Gizliliği', 'GetMyWeather, 13 yaşın altındaki çocuklardan bilerek veri toplamaz.'],
+          ['İletişim', 'Sorularınız için: getmyweatherapp@gmail.com'],
+        ]
+      },
+      en: {
+        title: 'Privacy Policy',
+        date: 'Last updated: July 2026',
+        highlight: 'Your location never reaches our servers. Your weather is calculated on your device — only the result is shared.',
+        sections: [
+          ['General Principle', 'GetMyWeather is a simple app that lets you see the weather where your friends are. We don\'t collect data we don\'t need.'],
+          ['Location Data', 'The app uses your device\'s location only on-device, via Apple WeatherKit, to calculate your weather. Your location is never sent to our servers. The only thing written to the server is the computed result: temperature, condition, and timezone.'],
+          ['Account & Sign-In', 'Sign in with Apple is used for authentication. We do not request your email address, and we don\'t ask Apple for it either.'],
+          ['Data Stored on Our Servers', 'Your username, your latest weather (temperature, condition, timezone), your friendships, and your invite links are stored on Supabase. This data is only visible to you and the friends you\'ve accepted (enforced by Row Level Security).'],
+          ['Friend Invites', 'An invite link you create stays valid until redeemed and expires automatically after 7 days. It is used only to establish a friendship, nothing else.'],
+          ['Share Card', 'A photo you choose to add to your share card is shared only by your own choice and control — it is not stored on our servers.'],
+          ['Children\'s Privacy', 'GetMyWeather does not knowingly collect data from children under 13.'],
+          ['Contact', 'For questions: getmyweatherapp@gmail.com'],
+        ]
+      }
+    };
+
+    function setLang(lang) {
+      const d = content[lang];
+      document.getElementById('title').textContent = d.title;
+      document.getElementById('date').textContent = d.date;
+      document.getElementById('highlight').textContent = d.highlight;
+
+      let html = '';
+      d.sections.forEach(([title, text]) => {
+        html += `<h2>${title}</h2><p>${text}</p>`;
+      });
+      document.getElementById('content').innerHTML = html;
+      document.getElementById('footerText').innerHTML =
+        `&copy; 2026 GetMyWeather &middot; <a href="https://getmyweather.app">getmyweather.app</a> &middot; <a href="mailto:getmyweatherapp@gmail.com">getmyweatherapp@gmail.com</a>`;
+
+      document.getElementById('btn-tr').className = 'lang-btn' + (lang === 'tr' ? ' active' : '');
+      document.getElementById('btn-en').className = 'lang-btn' + (lang === 'en' ? ' active' : '');
+      document.documentElement.lang = lang;
+      localStorage.setItem('gmw_lang', lang);
+    }
+
+    const savedLang = localStorage.getItem('gmw_lang');
+    const browserLang = navigator.language ? navigator.language.substring(0, 2) : 'en';
+    setLang(savedLang || (browserLang === 'tr' ? 'tr' : 'en'));
+  </script>
+</body>
+</html>
