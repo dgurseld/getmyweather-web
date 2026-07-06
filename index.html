@@ -6,6 +6,8 @@
   <title>GetMyWeather</title>
   <meta property="og:title" content="GetMyWeather — Sevdiklerine bir adım daha yakın hisset" />
   <meta property="og:description" content="Bulundukları yerin havasını ve saatini bir bakışta gör. Konumun cihazından hiç çıkmaz." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -76,6 +78,31 @@
     }
     .lang-btn.active { border-color: var(--gold); color: var(--gold-bright); }
 
+    .skin-switch { position: fixed; top: 60px; right: 20px; display: flex; gap: 8px; z-index: 2; }
+    .skin-btn {
+      background: var(--glass); backdrop-filter: blur(8px);
+      border: 1px solid var(--line); color: var(--muted);
+      padding: 6px 14px; border-radius: 20px; cursor: pointer;
+      font-size: 12px; font-weight: 600; transition: all .2s;
+    }
+    .skin-btn.active { border-color: var(--gold); color: var(--gold-bright); }
+
+    body.skin-90s { animation: none; background: linear-gradient(180deg, #3d3470 0%, #3d3470 45%, #5a4a7e 45%, #5a4a7e 100%); font-family: 'Press Start 2P', monospace; }
+    body.skin-90s .bg-decor, body.skin-90s .vignette { display: none; }
+    body.skin-90s .icon-wrap { animation: none; filter: none; }
+    body.skin-90s .app-name { font-size: 14px; line-height: 1.8; letter-spacing: 0; color: #f4e04d; }
+    body.skin-90s .tagline { font-size: 10px; line-height: 2; color: #fff; }
+    body.skin-90s .desc { font-size: 8px; line-height: 2; color: #dfe3ff; }
+    body.skin-90s .privacy-note { border-radius: 0; border: 2px solid #6a5acd; background: #2b2350; color: #f4e04d; }
+    body.skin-90s .card {
+      border-radius: 0; border: 3px solid #6a5acd; background: #2b2350;
+      box-shadow: 5px 5px 0 #17123a; backdrop-filter: none;
+    }
+    body.skin-90s .card .badge { font-size: 8px; color: #a89cd8; }
+    body.skin-90s .card .soon { font-size: 10px; color: #f4e04d; }
+    body.skin-90s .lang-btn, body.skin-90s .skin-btn { border-radius: 0; font-family: 'Press Start 2P', monospace; font-size: 8px; }
+    body.skin-90s .footer { font-family: 'Press Start 2P', monospace; font-size: 8px; line-height: 2; }
+
     .content { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; }
 
     .icon-wrap { width: 96px; height: 96px; margin-bottom: 18px; filter: drop-shadow(0 0 26px rgba(255,180,107,0.55)); animation: pulse 3.5s ease-in-out infinite; }
@@ -122,6 +149,11 @@
   <div class="lang-switch">
     <button class="lang-btn" id="btn-tr" onclick="setLang('tr')">TR</button>
     <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+  </div>
+
+  <div class="skin-switch">
+    <button class="skin-btn" id="skin-modern" onclick="setSkin('modern')">MODERN</button>
+    <button class="skin-btn" id="skin-90s" onclick="setSkin('90s')">90'S</button>
   </div>
 
   <div class="content">
@@ -174,6 +206,36 @@
       }
     };
 
+    const icons = {
+      modern: `<svg viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="40" cy="34" r="18" fill="#ffb46b"/>
+        <g stroke="#ffd9a8" stroke-width="3" stroke-linecap="round">
+          <line x1="40" y1="4" x2="40" y2="10"/>
+          <line x1="66" y1="16" x2="62" y2="20"/>
+          <line x1="14" y1="16" x2="18" y2="20"/>
+        </g>
+        <path d="M20 58c0-9 7-16 16-16 6.5 0 12 3.6 14.8 9A13 13 0 0 1 74 64a13 13 0 0 1-13 13H27a13 13 0 0 1-7-24z" fill="#eef1ff"/>
+      </svg>`,
+      '90s': `<svg viewBox="0 0 96 96" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+        <rect x="40" y="8" width="16" height="8" fill="#f4e04d"/>
+        <rect x="16" y="16" width="8" height="16" fill="#f4e04d"/>
+        <rect x="72" y="16" width="8" height="16" fill="#f4e04d"/>
+        <rect x="28" y="20" width="40" height="40" fill="#f4e04d"/>
+        <rect x="36" y="28" width="24" height="24" fill="#ffe9a8"/>
+        <rect x="8" y="56" width="56" height="16" fill="#fff"/>
+        <rect x="20" y="44" width="24" height="16" fill="#fff"/>
+        <rect x="44" y="50" width="24" height="16" fill="#fff"/>
+      </svg>`,
+    };
+
+    function setSkin(skin) {
+      document.body.classList.toggle('skin-90s', skin === '90s');
+      document.getElementById('skin-modern').className = 'skin-btn' + (skin === 'modern' ? ' active' : '');
+      document.getElementById('skin-90s').className = 'skin-btn' + (skin === '90s' ? ' active' : '');
+      document.querySelector('.icon-wrap').innerHTML = icons[skin];
+      localStorage.setItem('gmw_skin', skin);
+    }
+
     function setLang(lang) {
       const s = strings[lang];
       document.getElementById('tagline').textContent = s.tagline;
@@ -192,6 +254,9 @@
     const savedLang = localStorage.getItem('gmw_lang');
     const browserLang = navigator.language ? navigator.language.substring(0, 2) : 'en';
     setLang(savedLang || (browserLang === 'tr' ? 'tr' : 'en'));
+
+    const savedSkin = localStorage.getItem('gmw_skin');
+    setSkin(savedSkin === '90s' ? '90s' : 'modern');
   </script>
 </body>
 </html>

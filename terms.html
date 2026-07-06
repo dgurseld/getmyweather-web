@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Terms of Use — GetMyWeather</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -31,12 +33,34 @@
     h1 { text-align: center; color: var(--gold-bright); font-size: 22px; font-weight: 800; letter-spacing: 1px; margin-bottom: 6px; }
     .subtitle { text-align: center; color: var(--dim); font-size: 13px; margin-bottom: 36px; }
 
-    .lang-switch { display: flex; justify-content: center; gap: 10px; margin-bottom: 32px; }
+    .lang-switch { display: flex; justify-content: center; gap: 10px; margin-bottom: 12px; }
     .lang-btn {
       background: var(--glass); border: 1px solid var(--line); color: var(--dim);
       padding: 6px 16px; border-radius: 20px; cursor: pointer; font-size: 13px; transition: all .2s;
     }
     .lang-btn.active { border-color: var(--gold); color: var(--gold-bright); }
+
+    .skin-switch { display: flex; justify-content: center; gap: 10px; margin-bottom: 32px; }
+    .skin-btn {
+      background: var(--glass); border: 1px solid var(--line); color: var(--dim);
+      padding: 6px 16px; border-radius: 20px; cursor: pointer; font-size: 13px; transition: all .2s;
+    }
+    .skin-btn.active { border-color: var(--gold); color: var(--gold-bright); }
+
+    body.skin-90s { background: linear-gradient(180deg, #3d3470 0%, #3d3470 45%, #5a4a7e 45%, #5a4a7e 100%); font-family: 'Press Start 2P', monospace; }
+    body.skin-90s h1 { font-size: 14px; color: #f4e04d; }
+    body.skin-90s .subtitle { font-size: 8px; color: #a89cd8; }
+    body.skin-90s .section {
+      border-radius: 0; border: 3px solid #6a5acd; background: #2b2350;
+      box-shadow: 5px 5px 0 #17123a; backdrop-filter: none;
+    }
+    body.skin-90s .section h2 { font-size: 9px; color: #f4e04d; line-height: 1.8; }
+    body.skin-90s .section p { font-size: 9px; line-height: 2; color: #dfe3ff; }
+    body.skin-90s ul li { font-size: 9px; line-height: 2; color: #dfe3ff; border-bottom-color: #6a5acd; }
+    body.skin-90s .note-box { border-radius: 0; border: 2px solid #6a5acd; background: rgba(0,0,0,0.3); }
+    body.skin-90s .contact, body.skin-90s .footer { font-size: 8px; line-height: 2; }
+    body.skin-90s a { color: #f4e04d; }
+    body.skin-90s .lang-btn, body.skin-90s .skin-btn { border-radius: 0; font-family: 'Press Start 2P', monospace; font-size: 8px; }
 
     .section {
       background: var(--glass); backdrop-filter: blur(14px);
@@ -67,7 +91,7 @@
 </head>
 <body>
   <div class="container">
-    <svg class="icon" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg class="icon" id="icon" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
       <circle cx="40" cy="34" r="18" fill="#ffb46b"/>
       <path d="M20 58c0-9 7-16 16-16 6.5 0 12 3.6 14.8 9A13 13 0 0 1 74 64a13 13 0 0 1-13 13H27a13 13 0 0 1-7-24z" fill="#ffffff"/>
     </svg>
@@ -77,6 +101,11 @@
     <div class="lang-switch">
       <button class="lang-btn active" onclick="setLang('en')">English</button>
       <button class="lang-btn" onclick="setLang('tr')">Türkçe</button>
+    </div>
+
+    <div class="skin-switch">
+      <button class="skin-btn" id="skin-modern" onclick="setSkin('modern')">MODERN</button>
+      <button class="skin-btn" id="skin-90s" onclick="setSkin('90s')">90'S</button>
     </div>
 
     <!-- ENGLISH -->
@@ -162,6 +191,29 @@
   </div>
 
   <script>
+    const iconShapes = {
+      modern: `<circle cx="40" cy="34" r="18" fill="#ffb46b"/>
+        <path d="M20 58c0-9 7-16 16-16 6.5 0 12 3.6 14.8 9A13 13 0 0 1 74 64a13 13 0 0 1-13 13H27a13 13 0 0 1-7-24z" fill="#ffffff"/>`,
+      '90s': `<rect x="40" y="8" width="16" height="8" fill="#f4e04d"/>
+        <rect x="16" y="16" width="8" height="16" fill="#f4e04d"/>
+        <rect x="72" y="16" width="8" height="16" fill="#f4e04d"/>
+        <rect x="28" y="20" width="40" height="40" fill="#f4e04d"/>
+        <rect x="36" y="28" width="24" height="24" fill="#ffe9a8"/>
+        <rect x="8" y="56" width="56" height="16" fill="#fff"/>
+        <rect x="20" y="44" width="24" height="16" fill="#fff"/>
+        <rect x="44" y="50" width="24" height="16" fill="#fff"/>`,
+    };
+
+    function setSkin(skin) {
+      document.body.classList.toggle('skin-90s', skin === '90s');
+      document.getElementById('skin-modern').className = 'skin-btn' + (skin === 'modern' ? ' active' : '');
+      document.getElementById('skin-90s').className = 'skin-btn' + (skin === '90s' ? ' active' : '');
+      const icon = document.getElementById('icon');
+      icon.innerHTML = iconShapes[skin];
+      icon.setAttribute('shape-rendering', skin === '90s' ? 'crispEdges' : 'auto');
+      localStorage.setItem('gmw_skin', skin);
+    }
+
     function setLang(lang) {
       document.querySelectorAll('[data-lang]').forEach(el => {
         el.classList.toggle('active', el.dataset.lang === lang);
@@ -175,6 +227,9 @@
     const savedLang = localStorage.getItem('gmw_lang');
     const browserLang = navigator.language || navigator.userLanguage || 'en';
     setLang(savedLang || (browserLang.startsWith('tr') ? 'tr' : 'en'));
+
+    const savedSkin = localStorage.getItem('gmw_skin');
+    setSkin(savedSkin === '90s' ? '90s' : 'modern');
   </script>
 </body>
 </html>
