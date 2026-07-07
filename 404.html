@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GetMyWeather Daveti</title>
+  <meta property="og:title" content="GetMyWeather Daveti" />
+  <meta property="og:description" content="Bir arkadaşın seni GetMyWeather'a davet etti — bulunduğu yerin havasını ve saatini bir bakışta gör." />
+  <meta property="og:image" content="https://getmyweather.app/og-icon.png" />
+  <meta name="twitter:card" content="summary" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --gold: #ffb46b;
+      --gold-bright: #ffd9a8;
+      --ink: #ffffff;
+      --muted: #dfe3ff;
+      --dim: #aab0dd;
+      --line: rgba(255,255,255,0.18);
+      --glass: rgba(8,10,30,0.38);
+    }
+
+    html, body { height: 100%; }
+
+    body {
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 40px 24px;
+      position: relative;
+      overflow-x: hidden;
+      background: linear-gradient(125deg, #131a3d, #2c3a75, #6a4a8f, #d97a55, #2c3a75);
+      background-size: 400% 400%;
+      animation: sky 22s ease-in-out infinite;
+    }
+
+    @keyframes sky {
+      0%   { background-position: 0% 30%; }
+      50%  { background-position: 100% 70%; }
+      100% { background-position: 0% 30%; }
+    }
+
+    .vignette {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background: radial-gradient(ellipse at 50% 38%, rgba(6,8,28,0.08), rgba(6,8,28,0.62) 75%);
+    }
+
+    .lang-switch { position: fixed; top: 20px; right: 20px; display: flex; gap: 8px; z-index: 2; }
+    .lang-btn {
+      background: var(--glass); backdrop-filter: blur(8px);
+      border: 1px solid var(--line); color: var(--muted);
+      padding: 6px 14px; border-radius: 20px; cursor: pointer;
+      font-size: 12px; font-weight: 600; transition: all .2s;
+    }
+    .lang-btn.active { border-color: var(--gold); color: var(--gold-bright); }
+
+    .content { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; max-width: 380px; }
+
+    .icon-wrap { width: 88px; height: 88px; margin-bottom: 18px; filter: drop-shadow(0 0 26px rgba(255,180,107,0.55)); }
+    .icon-wrap img { width: 100%; height: 100%; border-radius: 22px; }
+
+    .app-name { color: var(--gold-bright); font-size: 24px; font-weight: 800; letter-spacing: 1px; margin-bottom: 14px; text-align: center; }
+    .headline { color: var(--ink); font-size: 18px; margin-bottom: 12px; text-align: center; line-height: 1.6; font-weight: 700; min-height: 52px; }
+    .desc { color: var(--muted); font-size: 14px; text-align: center; line-height: 1.8; margin-bottom: 22px; }
+    .privacy-note {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: var(--dim); font-size: 11.5px; font-weight: 600;
+      background: var(--glass); border: 1px solid var(--line);
+      padding: 6px 14px; border-radius: 20px; margin-bottom: 28px;
+    }
+
+    .card {
+      background: var(--glass); backdrop-filter: blur(20px) saturate(140%);
+      border: 1px solid var(--line); border-radius: 24px;
+      padding: 22px 28px; width: 100%; max-width: 320px;
+      text-align: center; margin-bottom: 22px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.25);
+    }
+    .card .badge { color: var(--dim); font-size: 10px; font-weight: 700; letter-spacing: 1.5px; margin-bottom: 6px; }
+    .card .soon { color: var(--gold-bright); font-size: 15px; font-weight: 800; }
+
+    .home-link { color: var(--muted); font-size: 13px; text-decoration: none; }
+    .home-link:hover { color: var(--gold-bright); }
+
+    .footer { color: var(--dim); font-size: 11px; margin-top: 20px; text-align: center; position: relative; z-index: 1; }
+  </style>
+</head>
+<body>
+  <div class="vignette" aria-hidden="true"></div>
+
+  <div class="lang-switch">
+    <button class="lang-btn" id="btn-tr" onclick="setLang('tr')">TR</button>
+    <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+  </div>
+
+  <div class="content">
+    <div class="icon-wrap">
+      <img src="/og-icon.png" alt="GetMyWeather" />
+    </div>
+
+    <div class="app-name">GetMyWeather</div>
+    <div class="headline" id="headline"></div>
+    <div class="desc" id="desc"></div>
+    <div class="privacy-note" id="privacyNote"></div>
+
+    <div class="card">
+      <div class="badge" id="badge"></div>
+      <div class="soon" id="soon"></div>
+    </div>
+
+    <a class="home-link" id="homeLink" href="https://getmyweather.app"></a>
+  </div>
+
+  <div class="footer" id="footer"></div>
+
+  <script>
+    const strings = {
+      tr: {
+        headlineDefault: 'Bir arkadaşın seni GetMyWeather\'a davet etti!',
+        headlineNamed: (name) => `${name} seni GetMyWeather'a davet etti!`,
+        headlineInvalid: 'Bu davet linkinin süresi dolmuş ya da daha önce kullanılmış.',
+        desc: 'Bulundukları yerin havasını ve saatini bir bakışta gör, kendi anını da onlarla paylaş.',
+        privacyNote: '🔒 Konumun cihazından hiç çıkmaz',
+        badge: 'DURUM',
+        soon: 'Yakında App Store\'da',
+        homeLink: 'Ana sayfaya dön',
+      },
+      en: {
+        headlineDefault: 'A friend invited you to GetMyWeather!',
+        headlineNamed: (name) => `${name} invited you to GetMyWeather!`,
+        headlineInvalid: 'This invite link has expired or was already used.',
+        desc: 'See the weather and time where they are, at a glance, and share your own moment with them.',
+        privacyNote: '🔒 Your location never leaves your device',
+        badge: 'STATUS',
+        soon: 'Coming soon on the App Store',
+        homeLink: 'Back to home',
+      },
+    };
+
+    let currentLang = 'en';
+    let inviteState = { loaded: false, valid: null, inviterName: null };
+
+    function render() {
+      const s = strings[currentLang];
+      let headline = s.headlineDefault;
+      if (inviteState.loaded) {
+        if (inviteState.valid === false) headline = s.headlineInvalid;
+        else if (inviteState.inviterName) headline = s.headlineNamed(inviteState.inviterName);
+      }
+      document.getElementById('headline').textContent = headline;
+      document.getElementById('desc').textContent = s.desc;
+      document.getElementById('privacyNote').textContent = s.privacyNote;
+      document.getElementById('badge').textContent = s.badge;
+      document.getElementById('soon').textContent = s.soon;
+      document.getElementById('homeLink').textContent = s.homeLink;
+      document.getElementById('btn-tr').className = 'lang-btn' + (currentLang === 'tr' ? ' active' : '');
+      document.getElementById('btn-en').className = 'lang-btn' + (currentLang === 'en' ? ' active' : '');
+    }
+
+    function setLang(lang) {
+      currentLang = lang;
+      document.documentElement.lang = lang;
+      localStorage.setItem('gmw_lang', lang);
+      render();
+    }
+
+    const savedLang = localStorage.getItem('gmw_lang');
+    const browserLang = navigator.language ? navigator.language.substring(0, 2) : 'en';
+    currentLang = savedLang || (browserLang === 'tr' ? 'tr' : 'en');
+    render();
+
+    const match = window.location.pathname.match(/\/invite\/([0-9a-fA-F-]{36})/);
+    if (match) {
+      const token = match[1];
+      fetch('https://lorjomwkbghsofhfujeh.supabase.co/rest/v1/rpc/invite_preview', {
+        method: 'POST',
+        headers: {
+          apikey: 'sb_publishable_ab15bzOEyMS96JSBDht5FA_gkdjWTOw',
+          Authorization: 'Bearer sb_publishable_ab15bzOEyMS96JSBDht5FA_gkdjWTOw',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ p_token: token }),
+      })
+        .then((r) => r.json())
+        .then((rows) => {
+          const row = rows && rows[0];
+          inviteState = {
+            loaded: true,
+            valid: row ? row.valid : false,
+            inviterName: row ? row.inviter_username : null,
+          };
+          render();
+        })
+        .catch(() => {
+          inviteState = { loaded: true, valid: null, inviterName: null };
+        });
+    }
+  </script>
+</body>
+</html>
