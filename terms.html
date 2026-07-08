@@ -221,6 +221,7 @@
       document.querySelectorAll('.lang-btn').forEach((btn, i) => {
         btn.classList.toggle('active', (i === 0 && lang === 'en') || (i === 1 && lang === 'tr'));
       });
+      document.documentElement.lang = lang;
       localStorage.setItem('gmw_lang', lang);
     }
 
