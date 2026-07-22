@@ -1,0 +1,22 @@
+name: Keep Supabase Awake
+
+# Supabase free tier projeler 7 gün istek gelmezse otomatik duraklatılıyor.
+# Bu workflow her 3 günde bir projeye zararsız bir "ping" isteği atarak
+# projeyi aktif tutar.
+
+on:
+  schedule:
+    # Her 3 günde bir, UTC 09:00'da çalışır (TR saatiyle 12:00)
+    - cron: '0 9 */3 * *'
+  workflow_dispatch: # İstersen GitHub'dan elle de tetikleyebilirsin (test için)
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase project
+        run: |
+          curl -s -o /dev/null -w "HTTP status: %{http_code}\n" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/?select=1" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
